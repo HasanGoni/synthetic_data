@@ -1,0 +1,75 @@
+[project]
+name = "udm-epic1"
+version = "0.1.0"
+description = "UDM Epic 1 — Physics-based Synthetic X-ray Void Data Generator for Universal Detection Model"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Mohammed Hasan Goni" }]
+requires-python = ">=3.10"
+keywords = ["synthetic-data", "x-ray", "void-detection", "semiconductor", "segmentation"]
+
+dependencies = [
+    "numpy>=1.24",
+    "opencv-python>=4.8",
+    "Pillow>=10.0",
+    "scipy>=1.11",
+    "scikit-image>=0.21",
+    "matplotlib>=3.7",
+    "tqdm>=4.66",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    "typer>=0.9",
+    "rich>=13.0",
+    "albumentations>=1.3",
+    "h5py>=3.9",
+    "pandas>=2.0",
+    "joblib>=1.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "nbdev>=2.3",
+    "jupyter>=1.0",
+    "ipykernel>=6.0",
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "black>=23.0",
+    "ruff>=0.1",
+]
+torch = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "onnx>=1.14",
+    "onnxruntime>=1.16",
+]
+
+[project.scripts]
+udm-generate = "udm_epic1.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["udm_epic1"]
+
+[tool.hatch.build.targets.sdist]
+include = ["udm_epic1", "nbs", "configs", "README.md"]
+
+[tool.nbdev]
+lib_path = "udm_epic1"
+nbs_path = "nbs"
+doc_path = "docs"
+title = "UDM Epic 1 — Synthetic Data Generator"
+description = "Physics-based synthetic X-ray void image generation for Universal Detection Model"
+author = "Mohammed Hasan Goni"
+branch = "main"
+repo = "udm-epic1-synthetic-data"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=udm_epic1 --cov-report=term-missing"

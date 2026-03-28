@@ -1,0 +1,109 @@
+# UDM Epic 1 — Default Synthetic Data Generation Config
+# Physics-based X-ray void synthesis using Beer-Lambert law
+
+dataset:
+  total_images: 3000
+  train_ratio: 0.75
+  val_ratio: 0.15
+  test_ratio: 0.10
+  seed: 42
+  output_dir: "data/synthetic"
+  backgrounds_dir: "data/raw_backgrounds"
+  image_format: "png"   # 16-bit PNG to preserve dynamic range
+  bit_depth: 16
+
+generation:
+  # Parallelism — set to number of CPU cores on your machine
+  num_workers: 8
+  # Speed multiplier target vs manual annotation (target: 17x)
+  batch_size: 32
+
+image:
+  # Base output size — model-agnostic, resized at training time
+  width: 512
+  height: 512
+  # If no real backgrounds available, generate synthetic Perlin-noise backgrounds
+  use_synthetic_backgrounds: true
+  background_noise_scale: 0.05
+
+physics:
+  # Beer-Lambert: I = I0 * exp(-mu * t)
+  # mu: linear attenuation coefficient (relative units, normalized)
+  mu_background_range: [0.8, 1.2]    # material attenuation variation
+  # Voids = air pockets => near-zero attenuation => brighter in X-ray
+  mu_void: 0.0                        # air: no attenuation
+  # Thickness variation to simulate different solder volumes
+  thickness_range: [0.3, 1.0]        # normalized units
+  # SFT background removal simulation (Nordson MatriX style)
+  apply_sft_correction: true
+  sft_sigma: 15.0
+  # Detector noise model
+  noise:
+    poisson: true
+    poisson_scale: 0.02
+    gaussian_sigma_range: [0.5, 2.5]
+    salt_pepper_prob: 0.001
+
+normalization:
+  # p2/p98 percentile normalization — baked into ONNX at export time
+  low_percentile: 2
+  high_percentile: 98
+  output_range: [0.0, 1.0]
+
+voids:
+  # Number of voids per image
+  count_range: [0, 8]
+  # Fraction of voids that are zero-void images (hard negatives)
+  empty_image_fraction: 0.15
+  # Void size as fraction of image area
+  min_area_fraction: 0.001   # ~0.1% — micro-void
+  max_area_fraction: 0.25    # ~25% — large void (IPC-7711 threshold)
+  # Shape distribution
+  shapes:
+    ellipse: 0.45
+    irregular_blob: 0.35
+    elongated: 0.12
+    cluster: 0.08
+  # Void brightness boost over background (Beer-Lambert contrast)
+  contrast_range: [0.08, 0.35]
+  # Edge softness (Gaussian blur sigma on void boundary)
+  edge_blur_sigma_range: [0.5, 2.0]
+  # Allow void overlap
+  allow_overlap: false
+  # Minimum distance between void centers (pixels)
+  min_void_separation: 8
+
+augmentation:
+  # Applied AFTER void synthesis — domain augmentation only
+  # NOTE: augmented images are NOT saved to disk (avoids Saad's overfitting issue)
+  enabled: true
+  horizontal_flip: 0.5
+  vertical_flip: 0.5
+  rotate_90: 0.3
+  brightness_contrast:
+    enabled: true
+    brightness_limit: 0.1
+    contrast_limit: 0.1
+    prob: 0.4
+  gaussian_blur:
+    enabled: true
+    blur_limit: [3, 5]
+    prob: 0.2
+  # Simulate inter-machine domain shift for robustness
+  domain_shift_aug:
+    enabled: true
+    # Simulate SAKI-style ring artifacts
+    ring_artifact_prob: 0.15
+    ring_artifact_strength: [0.02, 0.08]
+    # Simulate stitching seam artifacts
+    stitch_seam_prob: 0.10
+
+mask:
+  # Binary mask: 1=void, 0=background
+  dtype: "uint8"
+  void_value: 255
+  background_value: 0
+  # Optional: generate distance transform maps for soft labels
+  generate_distance_maps: false
+  # Optional: instance segmentation masks
+  generate_instance_masks: false

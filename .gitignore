@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.so
+*.pyd
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# uv
+.python-version
+
+# Data — never commit raw or synthetic images
+data/raw_backgrounds/
+data/synthetic/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# nbdev
+_proc/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Preview outputs
+preview_samples/

@@ -1,0 +1,40 @@
+model:
+  in_channels: 1
+  n_filters_g: 64
+  n_blocks: 9
+  n_filters_d: 64
+
+training:
+  max_epochs: 200
+  batch_size: 1          # CycleGAN standard
+  learning_rate: 2.0e-4
+  beta1: 0.5
+  beta2: 0.999
+  lambda_cycle: 10.0
+  lambda_identity: 5.0
+  lambda_defect: 1.0     # defect preservation (set 0 to disable)
+  lr_decay_start: 100    # linear decay from epoch 100 to 200
+  pool_size: 50           # image pool for discriminator
+  seed: 42
+
+data:
+  domain_a:
+    name: aoi
+    train: data/aoi/train
+    val: data/aoi/val
+  domain_b:
+    name: usm
+    train: data/usm/train
+    val: data/usm/val
+  paired_masks:           # optional, for defect preservation loss
+    masks_a: data/aoi/masks
+    masks_b: data/usm/masks
+
+image:
+  height: 512
+  width: 512
+
+output:
+  dir: outputs/epic3_cyclegan
+  checkpoint_every: 20
+  sample_every: 10        # save visual samples

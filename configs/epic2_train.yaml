@@ -1,0 +1,22 @@
+# Epic 2 US 2.3 — ControlNet fine-tuning (requires: uv pip install -e ".[epic2]")
+# Run: udm-epic2 train --config configs/epic2_train.yaml
+
+crops_root: data/epic2/crops
+output_dir: outputs/epic2_controlnet
+
+pretrained_model_name_or_path: runwayml/stable-diffusion-v1-5
+controlnet_model_name_or_path: lllyasviel/sd-controlnet-canny
+
+resolution: 512
+caption: "semiconductor x-ray void defect, grayscale x-ray, high contrast"
+
+max_train_steps: 500
+train_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 1.0e-5
+lr_scheduler: constant
+lr_warmup_steps: 0
+checkpointing_steps: 250
+
+mixed_precision: fp16
+dataloader_num_workers: 0

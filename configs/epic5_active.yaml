@@ -1,0 +1,66 @@
+# Epic 5 US 5.1–5.6 — Active Domain Adaptation
+# Usage: udm-epic5 train --config configs/epic5_active.yaml
+
+model:
+  backbone: convnext_tiny
+  decoder_channels: [256, 128, 64, 32]
+  domain_head_hidden: 256
+
+uncertainty:
+  method: mc_dropout
+  n_forward: 20
+  batch_size: 4
+
+selection:
+  strategy: combined    # uncertainty, diversity, combined
+  budget: 50
+  alpha: 0.7           # weight for uncertainty vs diversity
+
+training:
+  base_checkpoint: outputs/epic4_dann/best.pth
+  max_epochs: 50
+  batch_size: 8
+  learning_rate: 5.0e-5   # lower LR for fine-tuning
+  weight_decay: 1.0e-4
+  lambda_max: 0.5         # reduced domain weight with labeled target
+  gradient_clip: 1.0
+  mixed_precision: true
+  seed: 42
+
+loss:
+  segmentation: bce_dice
+  domain: bce
+  seg_weight: 1.0
+  domain_weight: 0.5
+
+data:
+  source:
+    name: warstein
+    images: data/warstein/images
+    masks: data/warstein/masks
+    train_ratio: 0.8
+    val_ratio: 0.2
+  target_unlabeled:
+    name: malaysia
+    images: data/malaysia/images
+  target_labeled:
+    name: malaysia_labeled
+    images: data/malaysia_labeled/images
+    masks: data/malaysia_labeled/masks
+  evaluation:
+    - name: malaysia_eval
+      images: data/malaysia_eval/images
+      masks: data/malaysia_eval/masks
+
+image:
+  height: 512
+  width: 512
+
+output:
+  dir: outputs/epic5_active
+  checkpoint_every: 10
+
+rounds:
+  max_rounds: 3
+  budget_per_round: 50
+  stopping_improvement: 0.02

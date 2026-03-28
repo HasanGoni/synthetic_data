@@ -1,0 +1,35 @@
+# Epic 4 US 4.2 — Source-only baseline segmentation
+# Usage: udm-epic4 baseline --config configs/epic4_baseline.yaml
+
+model:
+  backbone: convnext_tiny
+  pretrained: true
+  decoder_channels: [256, 128, 64, 32]
+
+training:
+  max_epochs: 50
+  batch_size: 8
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-4
+  gradient_clip: 1.0
+  mixed_precision: true
+  seed: 42
+
+loss:
+  segmentation: bce_dice
+
+data:
+  source:
+    name: warstein
+    images: data/warstein/images
+    masks: data/warstein/masks
+    train_ratio: 0.8
+    val_ratio: 0.2
+
+image:
+  height: 512
+  width: 512
+
+output:
+  dir: outputs/epic4_baseline
+  checkpoint_every: 10

@@ -1,0 +1,32 @@
+# Epic 4 US 4.5 — Multi-site evaluation
+# Usage: udm-epic4 evaluate --checkpoint outputs/epic4_dann/best.pth --config configs/epic4_evaluate.yaml
+
+model:
+  backbone: convnext_tiny
+  decoder_channels: [256, 128, 64, 32]
+  domain_head_hidden: 256
+
+checkpoint: outputs/epic4_dann/best.pth
+
+evaluation:
+  - name: warstein
+    images: data/warstein/val/images
+    masks: data/warstein/val/masks
+  - name: malaysia
+    images: data/malaysia_eval/images
+    masks: data/malaysia_eval/masks
+  - name: regensburg
+    images: data/regensburg/images
+    masks: data/regensburg/masks
+  - name: china
+    images: data/china/images
+    masks: data/china/masks
+
+image:
+  height: 512
+  width: 512
+
+output:
+  dir: outputs/epic4_evaluation
+  save_predictions: true
+  save_tsne: true

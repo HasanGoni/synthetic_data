@@ -15,6 +15,10 @@ from udm_epic1.physics.beer_lambert import BeerLambertSimulator, BeerLambertConf
 from udm_epic1.generators.void_shapes import VoidShapeGenerator, VoidGeometry
 from udm_epic1.generators.sample_generator import SyntheticSampleGenerator, GeneratorConfig
 from udm_epic1.augmentation.transforms import AugmentationPipeline, AugConfig
+from udm_epic1.validation.mask_stats import (
+    summarize_mask_records,
+    void_metrics_from_mask,
+)
 
 
 # ─── Fixtures ────────────────────────────────────────────────────────────────
@@ -242,3 +246,31 @@ class TestAugmentation:
         msk = np.zeros((128, 128), dtype=np.uint8)
         img_out, _ = aug(img, msk)
         assert not np.allclose(img, img_out), "Ring artifact should change the image"
+
+
+class TestMaskStats:
+
+    def test_void_metrics_single_component(self):
+        m = np.zeros((64, 64), dtype=np.uint8)
+        m[20:40, 20:40] = 255
+        out = void_metrics_from_mask(m)
+        assert out["n_voids"] == 1
+        assert out["void_area_fraction"] == (20 * 20) / (64 * 64)
+
+    def test_void_metrics_empty(self):
+        m = np.zeros((32, 32), dtype=np.uint8)
+        out = void_metrics_from_mask(m)
+        assert out["n_voids"] == 0
+        assert out["void_area_fraction"] == 0.0
+
+    def test_summarize_empty(self):
+        assert summarize_mask_records([])["n_masks"] == 0
+
+    def test_summarize_two(self):
+        rec = [
+            {"n_voids": 1, "void_area_fraction": 0.1},
+            {"n_voids": 3, "void_area_fraction": 0.05},
+        ]
+        s = summarize_mask_records(rec)
+        assert s["n_masks"] == 2
+        assert s["n_voids"]["mean"] == 2.0

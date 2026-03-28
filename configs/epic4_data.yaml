@@ -1,0 +1,36 @@
+# Epic 4 — Multi-site domain data configuration
+# Usage: udm-epic4 prepare --config configs/epic4_data.yaml
+
+domains:
+  source:
+    name: warstein
+    images: data/warstein/images
+    masks: data/warstein/masks
+    train_ratio: 0.8
+    val_ratio: 0.2
+
+  targets:
+    - name: malaysia
+      images: data/malaysia/images
+      # no masks — unlabeled for DANN training
+
+  evaluation:
+    - name: warstein_val
+      images: data/warstein/val/images
+      masks: data/warstein/val/masks
+    - name: malaysia_eval
+      images: data/malaysia_eval/images
+      masks: data/malaysia_eval/masks
+    - name: regensburg
+      images: data/regensburg/images
+      masks: data/regensburg/masks
+    - name: china
+      images: data/china/images
+      masks: data/china/masks
+
+image:
+  height: 512
+  width: 512
+
+output:
+  dir: outputs/epic4_analysis

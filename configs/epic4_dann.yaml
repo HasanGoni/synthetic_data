@@ -1,0 +1,48 @@
+# Epic 4 US 4.3 — DANN adversarial training
+# Usage: udm-epic4 train --config configs/epic4_dann.yaml
+
+model:
+  backbone: convnext_tiny
+  pretrained: true
+  decoder_channels: [256, 128, 64, 32]
+  domain_head_hidden: 256
+
+training:
+  max_epochs: 100
+  batch_size: 8            # 4 source + 4 target per batch
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-4
+  lambda_max: 1.0
+  lambda_schedule: dann    # 2/(1+exp(-10p))-1
+  gradient_clip: 1.0
+  mixed_precision: true
+  seed: 42
+
+loss:
+  segmentation: bce_dice
+  domain: bce
+  seg_weight: 1.0
+  domain_weight: 1.0
+
+data:
+  source:
+    name: warstein
+    images: data/warstein/images
+    masks: data/warstein/masks
+    train_ratio: 0.8
+    val_ratio: 0.2
+  targets:
+    - name: malaysia
+      images: data/malaysia/images
+  evaluation:
+    - name: malaysia_eval
+      images: data/malaysia_eval/images
+      masks: data/malaysia_eval/masks
+
+image:
+  height: 512
+  width: 512
+
+output:
+  dir: outputs/epic4_dann
+  checkpoint_every: 10

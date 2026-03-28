@@ -1,0 +1,13 @@
+# Epic 2 US 2.4 — batch generation from edge maps (requires .[epic2])
+
+controlnet_path: outputs/epic2_controlnet/controlnet_final
+pretrained_model_name_or_path: runwayml/stable-diffusion-v1-5
+conditioning_glob: data/epic2/crops/edges/void/*.png
+output_dir: data/epic2/generated
+
+prompt: "semiconductor x-ray void defect, grayscale, high contrast"
+num_inference_steps: 30
+n_per_conditioning: 1
+seed: 42
+quality_filter: true
+min_laplacian_var: 5.0

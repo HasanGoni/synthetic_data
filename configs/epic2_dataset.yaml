@@ -1,0 +1,14 @@
+# Epic 2 — defect crop dataset (US 2.1) + optional edge maps (US 2.2)
+# Usage:
+#   udm-epic2 extract-crops -c configs/epic2_dataset.yaml \
+#     --image-dir data/real/train/images --mask-dir data/real/train/masks -o data/epic2/crops
+
+crop:
+  min_component_area_px: 16
+  padding_px: 8
+  max_crop_side: 512
+  defect_class: void
+
+io:
+  glob: "*.png"
+  write_edges: true

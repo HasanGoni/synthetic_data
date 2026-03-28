@@ -1,123 +1,217 @@
-# UDM Epic 1 — Synthetic X-ray Void Dataset Generator
+# Synthetic Data Generation for Semiconductor Defect Detection
 
-**Part of the Universal Detection Model (UDM) project — Infineon IEG**
+**Universal Detection Model (UDM) — Infineon IEG**
 
-Physics-based synthetic data generation for void detection in X-ray solder joint images.
-Uses Beer-Lambert law to simulate realistic void contrast across Nordson MatriX and SAKI 3Xi-M110 machines.
+Complete synthetic data generation pipeline covering 9 epics: physics-based synthesis, GAN generation, cross-modality translation, domain adaptation, active learning, bond wire synthesis, spectral imaging, unified pipeline, and crack generation.
 
----
-
-## Physics Basis
-
-**Beer-Lambert law:** `I = I₀ · exp(−μ · t)`
-
-| Region | μ (attenuation) | Result in X-ray |
-|--------|----------------|-----------------|
-| Solder | μ > 0 | Dark (high attenuation) |
-| Void (air) | μ ≈ 0 | **Bright** (no attenuation) |
+**243 tests | 9 CLIs | 48 notebooks | ~31K LOC**
 
 ---
 
-## Structure
+## Epic Index
 
+Full details: [`docs/EPIC_INDEX.md`](docs/EPIC_INDEX.md)
+
+| Epic | Name | What it does | CLI |
+|------|------|-------------|-----|
+| 1 | X-ray Void Synthesis | Physics-based void generation (Beer-Lambert) | `udm-generate` |
+| 2 | GAN-Based Defect Gen | ControlNet + Stable Diffusion fine-tuning | `udm-epic2` |
+| 3 | CycleGAN Translation | AOI ↔ USM cross-modality image translation | `udm-epic3` |
+| 4 | DANN Multi-Site | Domain adaptation across 4 manufacturing sites | `udm-epic4` |
+| 5 | Active Learning | Smart sample selection (MC Dropout + Coreset) | `udm-epic5` |
+| 6 | Bond Wire Synthesis | AOI bond wire defect generation | `udm-epic6` |
+| 7 | Chromasense Spectral | Multi-wavelength spectral image synthesis | `udm-epic7` |
+| 8 | Universal Pipeline | Unified generation + COCO/YOLO/HF export | `udm-epic8` |
+| 9 | Crack Generation | Fractal cracks + USM→RGB domain transfer | `udm-epic9` |
+
+---
+
+## Where to Start
+
+### I want to generate synthetic data right now
+
+```bash
+# Install
+uv sync
+
+# Generate 3000 X-ray void images (Epic 1, CPU only, ~3 min)
+udm-generate run --config configs/default.yaml
+
+# Or generate crack defect images (Epic 9)
+udm-epic9 generate --config configs/epic9_crack.yaml --domain both
 ```
-udm-epic1-synthetic-data/
-├── udm_epic1/
-│   ├── physics/beer_lambert.py      # Beer-Lambert + SFT + noise
-│   ├── generators/void_shapes.py    # Ellipse/blob/elongated/cluster
-│   ├── generators/sample_generator.py
-│   ├── augmentation/transforms.py   # Training-time only (NOT saved)
-│   ├── dataset/pipeline.py          # Parallel joblib pipeline
-│   ├── validation/mask_stats.py     # Real-mask metrics (used by analysis script)
-│   └── cli.py                       # udm-generate CLI
-├── udm_epic2/                       # Epic 2 — ControlNet pipeline (US 2.1–2.6)
-│   ├── dataset/crops.py, hf_export.py
-│   ├── conditioning/edges.py
-│   ├── training/                    # ControlNet fine-tuning
-│   ├── generation/inference.py
-│   ├── integration/paste.py
-│   ├── quality/filter.py
-│   └── cli_epic2.py                 # udm-epic2
-├── nbs/                             # epic1_* = Epic 1; epic2_* = Epic 2
-│   ├── epic1_100_tutorial_real_backgrounds.ipynb
-│   ├── epic2_00_gan_overview.ipynb
-│   └── epic2_01_dataset_prep.ipynb
-├── scripts/
-│   ├── generate_dataset.py
-│   ├── analysis/analyze_real_voids.py
-│   ├── validation/compare_distributions.py
-│   └── epic2/extract_defect_crops.py  # launcher → udm-epic2
-├── configs/default.yaml
-├── configs/epic2_dataset.yaml
-├── configs/epic2_train.yaml
-├── configs/epic2_generate.yaml
-├── data/synthetic/                  # Epic 1 output: train/val/test + manifest.csv
-└── tests/test_epic1.py, tests/test_epic2.py
+
+### I want to understand how everything works
+
+Start with the **tutorial notebook** — it walks through every function in Epic 1 and Epic 2 with visual output:
+
+```bash
+jupyter lab nbs/100_tutorial.ipynb
 ```
+
+### I want to understand a specific epic
+
+Each epic has numbered notebooks that explain every module step by step:
+
+| Start here | What you learn |
+|------------|---------------|
+| `nbs/100_tutorial.ipynb` | Complete walkthrough of Epic 1 + 2 (recommended first) |
+| `nbs/epic3_00_overview.ipynb` | CycleGAN cross-modality translation |
+| `nbs/epic4_00_overview.ipynb` | DANN domain adaptation architecture |
+| `nbs/epic5_00_overview.ipynb` | Active learning sample selection |
+| `nbs/epic6_00_overview.ipynb` | Bond wire synthesis |
+| `nbs/epic7_00_overview.ipynb` | Chromasense spectral imaging |
+| `nbs/epic8_00_overview.ipynb` | Universal pipeline + dataset export |
+| `nbs/epic9_00_overview.ipynb` | Crack generation + domain transfer |
+
+Each `_00_overview` notebook explains the architecture, then `_01`, `_02`, etc. dive into each module individually with runnable code.
+
+### I want to understand a specific script/module
+
+Every Python module has a corresponding notebook that explains it:
+
+| Module | Explained in |
+|--------|-------------|
+| `udm_epic1/physics/beer_lambert.py` | `nbs/01_physics.ipynb` |
+| `udm_epic1/generators/void_shapes.py` | `nbs/02_void_shapes.ipynb` |
+| `udm_epic1/generators/sample_generator.py` | `nbs/03_generator.ipynb` |
+| `udm_epic1/dataset/pipeline.py` | `nbs/04_pipeline.ipynb` |
+| `udm_epic1/augmentation/transforms.py` | `nbs/05_augmentation.ipynb` |
+| `udm_epic2/dataset/crops.py` | `nbs/epic2_01_dataset_prep.ipynb` |
+| `udm_epic3/models/cyclegan.py` | `nbs/epic3_02_training.ipynb` |
+| `udm_epic4/models/dann.py` | `nbs/epic4_03_dann_training.ipynb` |
+| `udm_epic5/uncertainty/mc_dropout.py` | `nbs/epic5_01_uncertainty.ipynb` |
+| `udm_epic9/models/crack_geometry.py` | `nbs/epic9_01_crack_generation.ipynb` |
+| `udm_epic9/domain_transfer/usm_to_rgb.py` | `nbs/epic9_02_domain_transfer.ipynb` |
 
 ---
 
 ## Setup
 
 ```bash
-cd ~/projects/udm/udm-epic1-synthetic-data
-uv venv && source .venv/bin/activate
-uv pip install -e ".[dev]"
-# Epic 2 (ControlNet train + generate): also install
-uv pip install -e ".[epic2]"
+cd synthetic_data
+uv sync
+
+# Optional extras for specific epics:
+uv pip install -e ".[epic2]"    # ControlNet (diffusers, accelerate)
+uv pip install -e ".[epic4]"    # DANN (segmentation-models-pytorch)
+uv pip install -e ".[epic5]"    # Active learning (scikit-learn)
 ```
 
-## Generate
+---
+
+## Quick Start by Task
+
+### Generate synthetic X-ray voids (Epic 1)
 
 ```bash
-udm-generate run --config configs/default.yaml --total 3000 --workers 8
+udm-generate run --config configs/default.yaml
 udm-generate preview --n 8
-udm-generate validate
-udm-generate stats
+udm-generate validate --output data/synthetic
+udm-generate stats --output data/synthetic
 ```
 
-## Epic 2 — full pipeline (Notion: GAN / ControlNet epic)
+### Use your own real images as backgrounds (Epic 1)
 
-Install extras: `uv pip install -e ".[epic2]"` (diffusers, accelerate, transformers).
+```python
+from udm_epic1 import SyntheticSampleGenerator, GeneratorConfig
+import cv2
 
-| Step | Command |
-|------|---------|
-| US 2.1–2.2 Crops + edges | `udm-epic2 extract-crops --image-dir ... --mask-dir ... -o data/epic2/crops -c configs/epic2_dataset.yaml` |
-| Optional HF export | `udm-epic2 export-hf --crops-root data/epic2/crops -o data/epic2/hf_export` |
-| US 2.3 Train ControlNet | `udm-epic2 train -c configs/epic2_train.yaml` |
-| US 2.4 Generate | `udm-epic2 generate -c configs/epic2_generate.yaml` |
-| US 2.5 Paste on real BG | `udm-epic2 paste -b bg.png -p patch.png -m mask.png --center-x 256 --center-y 256 -o out.png` |
-| US 2.6 Ablation CSV | `udm-epic2 ablation-template -o results/epic2_ablation_template.csv` |
+bg = cv2.imread("your_normal_image.png", cv2.IMREAD_UNCHANGED)
+gen = SyntheticSampleGenerator(GeneratorConfig(), seed=42)
+image, mask, meta = gen.generate(image_id="sample_001", background=bg)
+```
 
-Configs: `configs/epic2_dataset.yaml`, `configs/epic2_train.yaml`, `configs/epic2_generate.yaml`.
-
-## Real masks & validation
+### Train DANN for multi-site deployment (Epic 4)
 
 ```bash
-python scripts/analysis/analyze_real_voids.py --mask-dir /path/to/masks --output results/void_statistics.json
-python scripts/validation/compare_distributions.py --manifest data/synthetic/manifest.csv --real-stats results/void_statistics.json
+udm-epic4 prepare --config configs/epic4_data.yaml
+udm-epic4 baseline --config configs/epic4_baseline.yaml
+udm-epic4 train --config configs/epic4_dann.yaml
+udm-epic4 evaluate --checkpoint outputs/epic4_dann/best.pth --config configs/epic4_evaluate.yaml
 ```
+
+### Active learning — select samples to label (Epic 5)
+
+```bash
+udm-epic5 uncertainty --checkpoint outputs/epic4_dann/best.pth --config configs/epic5_active.yaml
+udm-epic5 select --uncertainty-csv outputs/epic5_active/uncertainty.csv --budget 50
+udm-epic5 prepare-session --selected-csv outputs/selected.csv --images-dir data/malaysia/images
+udm-epic5 train --config configs/epic5_active.yaml
+```
+
+### Generate crack defects (Epic 9)
+
+```bash
+# Generate full dataset (USM + RGB)
+udm-epic9 generate --config configs/epic9_crack.yaml --domain both
+
+# Generate image from mask only
+udm-epic9 from-mask --mask my_crack_mask.png --domain rgb --output result.png
+
+# Domain transfer USM → RGB
+udm-epic9 transfer --input-dir usm_cracks/ --output-dir rgb_cracks/
+```
+
+### Translate between modalities (Epic 3)
+
+```bash
+udm-epic3 train --config configs/epic3_cyclegan.yaml
+udm-epic3 translate --checkpoint outputs/epic3_cyclegan/latest.pth --input-dir data/aoi/images --output-dir data/translated_usm --direction a2b
+```
+
+### Export to COCO/YOLO format (Epic 8)
+
+```bash
+udm-epic8 generate --config configs/epic8_universal.yaml
+udm-epic8 export --format coco --input data/universal --output data/coco_export
+```
+
+---
 
 ## Test
 
 ```bash
+# Run all 243 tests
 pytest tests/ -v
+
+# Run tests for a specific epic
+pytest tests/test_epic1.py -v
+pytest tests/test_epic4.py -v
+pytest tests/test_epic9.py -v
 ```
 
 ---
 
-## Key Design Decisions
+## Project Structure
 
-| Decision | Rationale |
-|----------|-----------|
-| Beer-Lambert physics | Physically grounded contrast |
-| 4 void morphologies | Covers IPC-7711 void phenotype distribution |
-| p2/p98 normalization | Baked into ONNX — robust to hot pixels |
-| Augmentation NOT saved | Avoids overfitting on augmented artifacts |
-| 16-bit PNG output | Preserves full detector dynamic range |
-| 15% empty images | Hard negatives — no false positives |
-| Domain-shift aug | Ring artifacts + seams → P2 readiness |
+```
+synthetic_data/
+├── udm_epic1/          # Physics-based void synthesis (Beer-Lambert)
+├── udm_epic2/          # ControlNet defect generation
+├── udm_epic3/          # CycleGAN AOI↔USM translation
+├── udm_epic4/          # DANN domain adaptation
+├── udm_epic5/          # Active learning + MC Dropout
+├── udm_epic6/          # Bond wire synthesis (AOI)
+├── udm_epic7/          # Chromasense spectral imaging
+├── udm_epic8/          # Universal pipeline + export
+├── udm_epic9/          # Crack generation + domain transfer
+├── configs/            # YAML configs for all epics
+├── tests/              # 243 tests (test_epic1.py through test_epic9.py)
+├── nbs/                # 48 Jupyter notebooks (tutorials + per-epic guides)
+├── docs/
+│   ├── EPIC_INDEX.md   # Complete epic reference
+│   └── superpowers/specs/  # Design specs for each epic
+└── scripts/            # Standalone utility scripts
+```
 
 ---
 
-Covers **P0 (Anchor)** and **P1 (Pilot)** of the UDM Complexity Map.
+## Design Specs
+
+Detailed architecture decisions for each epic:
+
+- [`docs/superpowers/specs/2026-03-28-epic4-dann-design.md`](docs/superpowers/specs/2026-03-28-epic4-dann-design.md)
+- [`docs/superpowers/specs/2026-03-28-epic5-active-dann-design.md`](docs/superpowers/specs/2026-03-28-epic5-active-dann-design.md)
+- [`docs/superpowers/specs/2026-03-28-epic3-cyclegan-design.md`](docs/superpowers/specs/2026-03-28-epic3-cyclegan-design.md)
+- [`docs/superpowers/specs/2026-03-28-epic678-future-design.md`](docs/superpowers/specs/2026-03-28-epic678-future-design.md)

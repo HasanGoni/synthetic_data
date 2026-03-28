@@ -1,0 +1,20 @@
+modalities:
+  xray:
+    enabled: true
+    samples: 1000
+    config_ref: configs/default.yaml
+  aoi:
+    enabled: true
+    samples: 500
+    config_ref: configs/epic6_bond_wire.yaml
+  chromasense:
+    enabled: false
+    samples: 200
+    config_ref: configs/epic7_chromasense.yaml
+
+output:
+  dir: data/universal
+  format: coco   # coco, yolo, hf
+  train_ratio: 0.75
+  val_ratio: 0.15
+  test_ratio: 0.10

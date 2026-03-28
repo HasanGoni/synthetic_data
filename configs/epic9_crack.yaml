@@ -1,0 +1,35 @@
+crack:
+  types:
+    die_crack: 0.3
+    substrate_crack: 0.25
+    mold_crack: 0.25
+    delamination_crack: 0.2
+  count_range: [1, 5]
+  width_range: [1, 4]         # pixels
+  branching_prob: 0.3
+  roughness_range: [0.1, 0.5]
+
+rendering:
+  crack_intensity: 0.7
+  edge_effect: true
+  background_noise: 0.03
+
+domain_transfer:
+  method: colormap             # colormap or learned
+  colormap: inferno
+
+image:
+  height: 512
+  width: 512
+
+dataset:
+  n_samples: 1000
+  domains: [usm, rgb]
+  train_ratio: 0.75
+  val_ratio: 0.15
+  test_ratio: 0.10
+  seed: 42
+  empty_fraction: 0.1         # 10% no-crack images
+
+output:
+  dir: data/epic9_cracks

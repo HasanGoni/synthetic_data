@@ -67,6 +67,21 @@ epic4 = [
 epic5 = [
     "scikit-learn>=1.3",
 ]
+epic6 = [
+    "scikit-image>=0.21",
+]
+epic7 = [
+    "scikit-image>=0.21",
+    "scipy>=1.11",
+]
+epic8 = [
+    "scikit-image>=0.21",
+    "pandas>=2.0",
+]
+epic9 = [
+    "scikit-image>=0.21",
+    "scipy>=1.11",
+]
 
 [project.scripts]
 udm-generate = "udm_epic1.cli:app"
@@ -74,16 +89,20 @@ udm-epic2 = "udm_epic2.cli_epic2:app"
 udm-epic3 = "udm_epic3.cli_epic3:app"
 udm-epic4 = "udm_epic4.cli_epic4:app"
 udm-epic5 = "udm_epic5.cli_epic5:app"
+udm-epic6 = "udm_epic6.cli_epic6:app"
+udm-epic7 = "udm_epic7.cli_epic7:app"
+udm-epic8 = "udm_epic8.cli_epic8:app"
+udm-epic9 = "udm_epic9.cli_epic9:app"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["udm_epic1", "udm_epic2", "udm_epic3", "udm_epic4", "udm_epic5"]
+packages = ["udm_epic1", "udm_epic2", "udm_epic3", "udm_epic4", "udm_epic5", "udm_epic6", "udm_epic7", "udm_epic8", "udm_epic9"]
 
 [tool.hatch.build.targets.sdist]
-include = ["udm_epic1", "udm_epic2", "udm_epic3", "udm_epic4", "udm_epic5", "nbs", "configs", "scripts", "README.md"]
+include = ["udm_epic1", "udm_epic2", "udm_epic3", "udm_epic4", "udm_epic5", "udm_epic6", "udm_epic7", "udm_epic8", "udm_epic9", "nbs", "configs", "scripts", "README.md"]
 
 [tool.nbdev]
 lib_path = "udm_epic1_synthetic_data"
@@ -101,4 +120,4 @@ target-version = "py310"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=udm_epic1 --cov=udm_epic2 --cov=udm_epic3 --cov=udm_epic4 --cov=udm_epic5 --cov-report=term-missing"
+addopts = "--cov=udm_epic1 --cov=udm_epic2 --cov=udm_epic3 --cov=udm_epic4 --cov=udm_epic5 --cov=udm_epic6 --cov=udm_epic7 --cov=udm_epic8 --cov=udm_epic9 --cov-report=term-missing"

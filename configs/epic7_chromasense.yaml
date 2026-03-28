@@ -1,0 +1,58 @@
+# UDM Epic 7 — Chromasense Multi-Spectral Integration Configuration
+# ===================================================================
+#
+# This configuration defines the spectral imaging parameters for synthetic
+# Chromasense data generation, including wavelength selection, material
+# properties, defect types, and rendering settings.
+
+seed: 42
+
+# -- Spectral Configuration ------------------------------------------
+spectral:
+  # Chromasense illumination wavelengths (nm)
+  wavelengths: [450.0, 550.0, 650.0, 850.0]
+
+  # Known materials and their reflectance at each wavelength
+  materials:
+    silicon:
+      reflectance: [0.38, 0.35, 0.34, 0.33]
+    copper:
+      reflectance: [0.18, 0.45, 0.72, 0.83]
+    solder:
+      reflectance: [0.42, 0.48, 0.52, 0.58]
+    mold_compound:
+      reflectance: [0.08, 0.09, 0.10, 0.12]
+    oxidized_copper:
+      reflectance: [0.12, 0.22, 0.35, 0.42]
+
+# -- Defect Configuration -------------------------------------------
+defects:
+  types:
+    - delamination
+    - contamination
+    - oxidation
+  contaminants:
+    - flux_residue
+    - organic_film
+    - dust
+    - solder_splash
+  severity_range: [0.2, 1.0]
+
+# -- Rendering Configuration ----------------------------------------
+rendering:
+  height: 512
+  width: 512
+  noise_std: 0.02
+  defect_prob: 0.7
+
+# -- Dataset Generation ----------------------------------------------
+dataset:
+  n_samples: 1000
+  train_ratio: 0.8
+  val_ratio: 0.1
+  test_ratio: 0.1
+
+# -- Output -----------------------------------------------------------
+output:
+  dir: outputs/epic7_dataset
+  preview_dir: outputs/epic7_preview

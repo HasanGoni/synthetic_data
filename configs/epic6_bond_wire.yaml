@@ -1,0 +1,36 @@
+# Epic 6 — AOI Bond Wire & Surface Defect Synthesis
+# Usage: udm-epic6 generate --config configs/epic6_bond_wire.yaml
+
+seed: 42
+
+image:
+  height: 512
+  width: 512
+
+wires:
+  min_count: 1
+  max_count: 5
+
+defects:
+  types:
+    - none
+    - bend
+    - break
+    - lift
+  probabilities:
+    none: 0.30
+    bend: 0.25
+    break: 0.25
+    lift: 0.20
+  severity_range: [0.2, 0.8]
+
+rendering:
+  # Simple optical model parameters
+  specular_strength: 0.4
+  diffuse_strength: 0.6
+  background_intensity_range: [30, 60]
+  wire_noise_std: 2.0
+
+output:
+  dir: outputs/epic6_dataset
+  n_samples: 1000
